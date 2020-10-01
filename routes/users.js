@@ -24,8 +24,11 @@ router.post('/new',(req,res)=>{
 router.get('/',(req,res)=>{
   db.ref("usuario").once('value',(snapshot)=>{
      const usuarios = snapshot.val()
-      console.log(usuarios)
-      res.send(usuarios)
+    var result = [];
+
+    for(var i in usuarios)
+    result.push(i, usuarios [i]);
+      res.send(result)
 
   })
   
