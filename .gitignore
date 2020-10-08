@@ -1,0 +1,12 @@
+# Expo
+.expo
+__generated__
+web-buil
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+#VS code
+.history/
+
