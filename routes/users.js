@@ -20,12 +20,14 @@ router.post('/new', (req, res) => {
   res.send(newUser)
 })
 
-router.get('/', (req, res) => {
-  db.ref("usuarios").once('value', (snapshot) => {
-    var usuarios = snapshot.val()
-    console.log(usuarios)
+router.get('/',(req,res)=>{
+  db.ref("usuario").once('value',(snapshot)=>{
+     const usuarios = snapshot.val()
+    var result = [];
 
-    res.render("usuarios", { usuarios })
+    for(var i in usuarios)
+    result.push(i, usuarios [i]);
+      res.send(result)
 
   })
 
