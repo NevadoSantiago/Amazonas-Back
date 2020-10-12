@@ -1,24 +1,15 @@
 # Expo
 .expo
 __generated__
-<<<<<<< HEAD
-web-buil
-=======
 web-build
 
 # macOS
 .DS_Store
->>>>>>> 98b485922c1f009aea79e306a3bb1867da32fd9e
 
 # Node
 node_modules
 npm-debug.log
 yarn-error.log
-<<<<<<< HEAD
-#VS code
-.history/
-
-=======
 
 # Ruby
 .direnv
@@ -137,4 +128,3 @@ docs/pages/versions/*/react-native/*.diff
 
 # CONSTANTES
 src/Home/Menu/constantes/urlApi.js
->>>>>>> 98b485922c1f009aea79e306a3bb1867da32fd9e

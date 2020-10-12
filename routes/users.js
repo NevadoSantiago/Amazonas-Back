@@ -1,14 +1,19 @@
-const { response } = require('express');
+
 var express = require('express');
-const { registerVersion } = require('firebase');
 var router = express.Router();
 
+jwt = require('jsonwebtoken');
+
+const clave = require('../configs')
 
 const admin = require('firebase-admin')
-
 const db = admin.database()
 
-router.post('/new', (req, res) => {
+const rutaProtegida = require('../configs/rutaProtegida').getRutaProtegida()
+
+
+
+router.post('/new',rutaProtegida, (req, res) => {
   const { email, pass } = req.body
   const newUser = {
     email: email,
@@ -16,7 +21,6 @@ router.post('/new', (req, res) => {
     rol: "usuario",
   }
   db.ref("usuarios").push(newUser)
-
   res.send(newUser)
 })
 
@@ -36,7 +40,15 @@ router.post('/login',async (req, res) => {
   const { email, pass } = req.body
   var usuario = await getUsuarioByEmail(email)
       if (usuario) {
+        console.log(usuario)
         if (usuario.password == pass) {
+          const payload = {
+            check:  true
+           };
+           const token = jwt.sign(payload,clave.llave,{
+             expiresIn:1440
+           });
+           usuario.token = token;
           res.send(usuario, 201)
         } else {
           res.send("Contrasena incorrecta", 402)
