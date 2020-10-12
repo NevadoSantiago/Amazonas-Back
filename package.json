@@ -11,10 +11,7 @@
     "express": "~4.16.1",
     "firebase": "^7.22.0",
     "firebase-admin": "^9.2.0",
-<<<<<<< HEAD
     "hbs": "^4.1.1",
-=======
->>>>>>> 98b485922c1f009aea79e306a3bb1867da32fd9e
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "pug": "2.0.0-beta11"
