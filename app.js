@@ -19,7 +19,6 @@ admin.initializeApp({
   databaseURL: 'https://as-libre.firebaseio.com/'
 })
 
-var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var productRouter = require('./routes/productos');
 

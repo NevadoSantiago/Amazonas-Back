@@ -2,6 +2,7 @@ const clave = require('./index')
 var express = require('express');
 
 const rutasProtegidas = express.Router();
+
 rutasProtegidas.use((req, res, next) => {
     const token = req.headers['access-token'];
  

@@ -24,8 +24,10 @@ router.post('/new',rutaProtegida, (req, res) => {
   res.send(newUser)
 })
 
-router.get('/',(req,res)=>{
-  db.ref("usuario").once('value',(snapshot)=>{
+router.get('/',rutaProtegida,(req,res)=>{
+
+  res.send("PRUEBA TOKEN")
+/*   db.ref("usuario").once('value',(snapshot)=>{
      const usuarios = snapshot.val()
     var result = [];
 
@@ -33,22 +35,23 @@ router.get('/',(req,res)=>{
     result.push(i, usuarios [i]);
       res.send(result)
 
-  })
+  }) */
 
 })
 router.post('/login',async (req, res) => {
   const { email, pass } = req.body
   var usuario = await getUsuarioByEmail(email)
       if (usuario) {
-        console.log(usuario)
         if (usuario.password == pass) {
           const payload = {
-            check:  true
+            check:  true,
+            usuario: usuario.email
            };
            const token = jwt.sign(payload,clave.llave,{
              expiresIn:1440
            });
            usuario.token = token;
+           console.log(usuario)
           res.send(usuario, 201)
         } else {
           res.send("Contrasena incorrecta", 402)

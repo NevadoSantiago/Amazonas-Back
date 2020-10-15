@@ -1,4 +1,3 @@
 module.exports = {
-    llave: "estamosProbandoJWT12345***-------",
-    
+    llave: "estamosProbandoJWT12345***-------", 
 }
