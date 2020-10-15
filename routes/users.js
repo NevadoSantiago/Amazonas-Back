@@ -3,55 +3,39 @@ var express = require('express');
 var router = express.Router();
 
 jwt = require('jsonwebtoken');
-
-const clave = require('../configs')
-
 const admin = require('firebase-admin')
 const db = admin.database()
 
+const SECRET = require('../configs/rutaProtegida').getSecret();
 const rutaProtegida = require('../configs/rutaProtegida').getRutaProtegida()
 
 
 
 router.post('/new',rutaProtegida, (req, res) => {
-  const { email, pass } = req.body
+  const { email, password,rol } = req.body
   const newUser = {
     email: email,
-    password: pass,
-    rol: "usuario",
+    password: password,
+    rol:rol,
   }
+  console.log(newUser)
   db.ref("usuarios").push(newUser)
   res.send(newUser)
 })
 
-router.get('/',rutaProtegida,(req,res)=>{
-
-  res.send("PRUEBA TOKEN")
-/*   db.ref("usuario").once('value',(snapshot)=>{
-     const usuarios = snapshot.val()
-    var result = [];
-
-    for(var i in usuarios)
-    result.push(i, usuarios [i]);
-      res.send(result)
-
-  }) */
-
-})
 router.post('/login',async (req, res) => {
   const { email, pass } = req.body
   var usuario = await getUsuarioByEmail(email)
       if (usuario) {
         if (usuario.password == pass) {
           const payload = {
-            check:  true,
             usuario: usuario.email
            };
-           const token = jwt.sign(payload,clave.llave,{
-             expiresIn:1440
+           const token = jwt.sign(payload,SECRET,{
+             expiresIn:3600 //EN SEGUNDOS --> (1hora)
            });
+           usuario.password = null //PARA QUE NO SE ENVIE LA PASSWORD AL FRONT
            usuario.token = token;
-           console.log(usuario)
           res.send(usuario, 201)
         } else {
           res.send("Contrasena incorrecta", 402)
@@ -77,10 +61,6 @@ router.post('/login',async (req, res) => {
             }
             res.send(usuario)
         })
-
-
-
-
 
 
   async function getUsuarioByEmail (email) {

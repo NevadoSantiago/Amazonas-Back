@@ -120,6 +120,7 @@ shellAppWorkspaces
 .env.test.local
 .env.production.local
 apps/bare-expo/deploy-url.txt
+.env
 
 # Expo Doc merging
 docs/pages/versions/*/react-native/ADDED_*.md
