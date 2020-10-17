@@ -5,9 +5,7 @@ var logger = require('morgan');
 
 const express = require('express'),
       bodyParser = require('body-parser'),
-      config = require('./configs'),
       app = express();
-      app.set('llave', config.llave);
       app.use(bodyParser.urlencoded({ extended: true }));
       app.use(bodyParser.json());
       

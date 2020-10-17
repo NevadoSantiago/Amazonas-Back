@@ -47,10 +47,11 @@ router.post('/login',async (req, res) => {
 
     router.post('/addProduct/:idProducto/:emailUsuario', async(req, res) => {
       const {idProducto,emailUsuario} = req.params
+      var idProductoInt = parseInt(idProducto,10)
       var usuario = await getUsuarioByEmail(emailUsuario)
           if (usuario) {
             if(usuario.productos){
-              usuario.productos.push(idProducto)
+              usuario.productos.push(idProductoInt)
             }else{
               usuario.productos=[
                 idProducto

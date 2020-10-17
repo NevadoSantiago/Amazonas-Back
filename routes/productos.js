@@ -7,6 +7,7 @@ const admin = require('firebase-admin')
 const db =admin.database()
 
 router.post('/new', (req, res) => {
+  console.log(req)
   const { precio, nombre, descripcion } = req.body
   const newProduct = {
      precio,
@@ -14,6 +15,7 @@ router.post('/new', (req, res) => {
      descripcion,
      id: Math.floor(Math.random() * (1 - 100000000)) + 1,
   }
+  console.log(newProduct)
   db.ref("productos").push(newProduct)
   res.send('Creado')
 })
@@ -27,13 +29,14 @@ router.get('/get', (req, res) => {
     res.send('Creado')
   })
 
-router.post('/getByIds', async (req,res) =>{
+router.post('/getByIds',async (req,res) =>{
   const {idProductos} = req.body
-  await idProductos.map(async(id) =>{
-    let productos = []
-    var prod = await getProductoById(id)
-    await productos.push(prod) 
-  })
+  console.log(req)
+  let productos = []
+
+  for (const id of idProductos) {
+    productos.push( await getProductoById(id))
+  }
     res.send(productos)  
 })
 
@@ -54,7 +57,8 @@ async function getProductoById (id) {
             nombre: productos[i].nombre,
             precio: productos[i].precio,
             descripcion: productos[i].descripcion,
-            id: productos[i].id
+            id: productos[i].id,
+            url:productos[i].url
           }
         }
           
