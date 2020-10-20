@@ -11,17 +11,23 @@ const rutaProtegida = require('../configs/rutaProtegida').getRutaProtegida()
 
 
 
-router.post('/new',rutaProtegida, (req, res) => {
+router.post('/new',async (req, res) => {
   const { email, password,rol } = req.body
   const newUser = {
     email: email,
     password: password,
     rol:rol,
   }
-  console.log(newUser)
-  db.ref("usuarios").push(newUser)
-  res.send(newUser)
+  var usuario = await getUsuarioByEmail(email)
+  if(usuario){
+    res.send("Usuario existente",409)
+  }else{
+    db.ref("usuarios").push(newUser)
+    res.send(newUser)
+  }
+
 })
+
 
 router.post('/login',async (req, res) => {
   const { email, pass } = req.body

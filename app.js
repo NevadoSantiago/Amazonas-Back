@@ -19,7 +19,7 @@ admin.initializeApp({
 
 var usersRouter = require('./routes/users');
 var productRouter = require('./routes/productos');
-
+var categoriaRouter = require('./routes/categorias');
 
 // view engine setup
 app.use(logger('dev'));
@@ -30,5 +30,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users', usersRouter);
 app.use('/products', productRouter);
+app.use('/categorias', categoriaRouter);
 
 module.exports = app;
