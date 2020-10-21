@@ -6,7 +6,7 @@ const admin = require('firebase-admin')
 
 const db =admin.database()
 
-router.post('/new', (req, res) => {
+router.post('/new', (req, res,next) => {
   console.log(req)
   const { precio, nombre, descripcion,categoria } = req.body
   const newProduct = {

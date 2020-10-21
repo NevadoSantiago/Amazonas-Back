@@ -2,12 +2,14 @@ var createError = require('http-errors');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors')
 
 const express = require('express'),
       bodyParser = require('body-parser'),
       app = express();
       app.use(bodyParser.urlencoded({ extended: true }));
       app.use(bodyParser.json());
+      app.use(cors())
       
 
 const admin = require('firebase-admin')
