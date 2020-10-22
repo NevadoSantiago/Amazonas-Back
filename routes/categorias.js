@@ -6,10 +6,9 @@ const admin = require('firebase-admin')
 const db =admin.database()
 
 router.post('/new', (req, res) => {
-  const { categoria,color } = req.body
+  const { categoria } = req.body
   const newCategoria = {
      categoria,
-     color,
      id: Math.floor(Math.random() * (1 - 100000000)) + 1,
   }
   console.log(newCategoria)

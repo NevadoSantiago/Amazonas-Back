@@ -19,7 +19,7 @@ router.post('/new',async (req, res) => {
     rol:rol,
   }
   var usuario = await getUsuarioByEmail(email)
-  if(usuario){
+  if(usuario.email){
     res.send("Usuario existente",409)
   }else{
     db.ref("usuarios").push(newUser)
@@ -51,17 +51,24 @@ router.post('/login',async (req, res) => {
       }
     })
 
-    router.post('/addProduct/:idProducto/:emailUsuario', async(req, res) => {
-      const {idProducto,emailUsuario} = req.params
+    router.post('/addProduct/:idProducto/:emailUsuario/:cantidad', async(req, res) => {
+      const {idProducto,emailUsuario,cantidad} = req.params
+      console.log(idProducto)
+      console.log(emailUsuario)
+      console.log(cantidad)
       var idProductoInt = parseInt(idProducto,10)
+      var cantidadInt = parseInt(cantidad,10)
       var usuario = await getUsuarioByEmail(emailUsuario)
           if (usuario) {
             if(usuario.productos){
-              usuario.productos.push(idProductoInt)
+              for(var i=0;i<cantidadInt; i++){
+                usuario.productos.push(idProductoInt)
+              }           
             }else{
-              usuario.productos=[
-                idProducto
-              ]
+              usuario.productos = []
+              for(var i=0;i<cantidadInt; i++){
+                usuario.productos.push(idProductoInt)
+              }   
             }
             
              db.ref("usuarios/"+usuario.id).update(usuario)
