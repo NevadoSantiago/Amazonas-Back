@@ -8,12 +8,13 @@ const db =admin.database()
 
 router.post('/new', (req, res,next) => {
   console.log(req)
-  const { precio, nombre, descripcion,categoria } = req.body
+  const { precio, nombre, descripcion,categoria,url } = req.body
   const newProduct = {
      precio,
      nombre,
      descripcion,
      categoria,
+     url,
      id: Math.floor(Math.random() * (1 - 100000000)) + 1,
   }
   console.log(newProduct)
@@ -21,7 +22,7 @@ router.post('/new', (req, res,next) => {
   res.send('Creado')
 })
 
-router.get('/getProdutos/:categoria', async (req, res) => {
+router.get('/getProductos/:categoria', async (req, res) => {
   const {categoria} = req.params
      var productos = await getProductosByCategoria(categoria)
     res.send(productos)
@@ -114,7 +115,8 @@ async function getProductosByCategoria (categoria) {
     precio: null,
     descripcion: null,
     categoria: null,
-    id: null
+    id: null,
+    url: null
   }
   await db.ref("productos").orderByChild("categoria").equalTo(categoria)
     .once('value', (snapshot) => {
