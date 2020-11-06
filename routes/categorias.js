@@ -6,9 +6,9 @@ const admin = require('firebase-admin')
 const db =admin.database()
 
 router.post('/new', (req, res) => {
-  const { nombre,descripcion } = req.body
+  const { categoria,descripcion } = req.body
   const newCategoria = {
-     nombre,
+    categoria,
      descripcion,
      id: Math.floor(Math.random() * (1 - 100000000)) + 1,
   }
@@ -25,7 +25,7 @@ router.get('/',async (req, res) => {
 
   async function getCategorias () {
     categoriaTemplateRespuesta = {
-        nombre:null,
+        categoria:null,
         descripcion:null,
         id:null
     }
@@ -36,7 +36,7 @@ router.get('/',async (req, res) => {
       resultado = []
         for (var i in categorias){
             categoriaTemplateRespuesta = {
-            nombre: categorias[i].nombre,
+            categoria: categorias[i].categoria,
             descripcion: categorias[i].descripcion,
             id: categorias[i].id,
           }

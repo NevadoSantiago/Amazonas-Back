@@ -9,8 +9,9 @@ const db =admin.database()
 router.post('/new', (req, res,next) => {
   console.log(req)
   const { precio, nombre, descripcion,categoria,url } = req.body
+    var precioInt = parseInt(precio)
   const newProduct = {
-     precio,
+     precio:precioInt,
      nombre,
      descripcion,
      categoria,
