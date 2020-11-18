@@ -57,8 +57,15 @@ router.post('/getByIds',async (req,res) =>{
     res.send(productos)  
 })
 
+router.delete('/deleteByKey', async(req,res)=>{
+  const {key} = req.body
+  db.ref("productos").child(key).remove()
+  res.send('Borrado')
+})
+
 async function getProductos () {
   var productoTemplateRespuesta = {
+    key: null,
     nombre: null,
     precio: null,
     descripcion: null,
@@ -71,6 +78,7 @@ async function getProductos () {
     resultado = []
       for (var i in productos){
         productoTemplateRespuesta = {
+          key: i,
           nombre: productos[i].nombre,
           precio: productos[i].precio,
           descripcion: productos[i].descripcion,
