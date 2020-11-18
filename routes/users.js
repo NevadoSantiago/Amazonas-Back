@@ -1,6 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
+jwt_decode = require('jwt-decode');
 
 jwt = require('jsonwebtoken');
 const admin = require('firebase-admin')
@@ -28,7 +29,6 @@ router.post('/new',async (req, res) => {
 
 })
 
-
 router.post('/login',async (req, res) => {
   const { email, pass } = req.body
   var usuario = await getUsuarioByEmail(email)
@@ -51,11 +51,33 @@ router.post('/login',async (req, res) => {
       }
     })
 
-    router.post('/addProduct/:idProducto/:emailUsuario', async(req, res) => {
-      const {idProducto,emailUsuario} = req.params
+router.post('/login/token',async (req, res) => {
+  const { token } = req.body
+  const decode = jwt_decode(token)
+  var usuario = await getUsuarioByEmail(decode.usuario)
+      if (usuario) {
+        const payload = {
+          usuario: usuario.email
+         };
+         const nuevoToken = jwt.sign(payload,SECRET,{
+           expiresIn:3600
+         });
+        usuario.password = null
+        usuario.token = nuevoToken
+        res.send(201,usuario)
+      } else {
+        res.send(null)
+      }
+     
+    })
+
+    router.post('/addProduct/:idProducto/:emailUsuario/:value', async(req, res) => {
+      const {idProducto,emailUsuario,value} = req.params
+      var cantidadProductosInt = parseInt(value, 10)
       var idProductoInt = parseInt(idProducto,10)
       var usuario = await getUsuarioByEmail(emailUsuario)
           if (usuario) {
+            for(var i=0;i<cantidadProductosInt; i++){
             if(usuario.productos){
               usuario.productos.push(idProductoInt)
             }else{
@@ -63,6 +85,8 @@ router.post('/login',async (req, res) => {
                 idProducto
               ]
             }
+          }
+
             
              db.ref("usuarios/"+usuario.id).update(usuario)
             }
