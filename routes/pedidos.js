@@ -37,6 +37,7 @@ router.get('/',async (req, res) => {
         direccion:null,
         id:null,
         email:null,
+        key: null,
         estado:null,
         nombre:null,
         precioTotal:null,
@@ -53,6 +54,7 @@ router.get('/',async (req, res) => {
             direccion: pedidos[i].direccion,
             id: pedidos[i].id,
             email: pedidos[i].email,
+            key: i,
             estado: pedidos[i].estado,
             nombre: pedidos[i].nombre,
             precioTotal: pedidos[i].precioTotal,
@@ -63,6 +65,51 @@ router.get('/',async (req, res) => {
           
     })
     return resultado
+  }
+
+
+  router.put('/updateEstado', async(req,res) => {
+    const {key, estado} = req.body
+    var pedido = getPedidoByKey(key)
+    pedido.estado = estado
+  
+    db.ref("pedidos/"+key).update(pedido)
+    res.send('Actualizado')
+  })
+
+
+  async function getPedidoByKey (key) {
+    var pedidoTemplateRespuesta = {
+      nombre: null,
+      apellido: null,
+      direccion: null,
+      email: null,
+      estado: null,
+      key: null,
+      precioTotal: null,
+      productos: null,
+      id: null
+    }
+    await db.ref("pedidos/"+key)
+      .once('value', (snapshot) => {
+        var pedidos = snapshot.val()
+        resultado = []
+          for (var i in pedidos){
+            pedidoTemplateRespuesta = {
+              nombre: pedidos[i].nombre,
+              apellido: pedidos[i].apellido,
+              direccion: pedidos[i].direccion,
+              email: pedidos[i].email,
+              estado: pedidos[i].estado,
+              key: pedidos[i].key,
+              precioTotal: pedidos[i].precioTotal,
+              productos: pedidos[i].productos,
+              id: pedidos[i].id
+            }
+          }
+            
+      })
+      return pedidoTemplateRespuesta;
   }
 
 
