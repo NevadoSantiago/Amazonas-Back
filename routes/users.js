@@ -4,23 +4,31 @@ var router = express.Router();
 jwt_decode = require('jwt-decode');
 
 jwt = require('jsonwebtoken');
+
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 const admin = require('firebase-admin')
 const db = admin.database()
 
 const SECRET = require('../configs/rutaProtegida').getSecret();
 const rutaProtegida = require('../configs/rutaProtegida').getRutaProtegida()
-
-
-
+var passwordHash = ''
 router.post('/new',async (req, res) => {
-  const { email, password,rol } = req.body
+  const { nombre, apellido, direccion, email, password} = req.body
+  const rol = "usuario"
+  passwordHash = await bcrypt.hash(password,saltRounds)
+
   const newUser = {
-    email: email,
-    password: password,
-    rol:rol,
+    nombre : nombre,
+    apellido : apellido,
+    direccion: direccion,
+    email:email ,
+    password: passwordHash,
+    rol: rol
   }
   var usuario = await getUsuarioByEmail(email)
-  if(usuario){
+  if(usuario.email != null){
     res.send("Usuario existente",409)
   }else{
     db.ref("usuarios").push(newUser)
@@ -33,7 +41,7 @@ router.post('/login',async (req, res) => {
   const { email, pass } = req.body
   var usuario = await getUsuarioByEmail(email)
       if (usuario) {
-        if (usuario.password == pass) {
+        if (await bcrypt.compare(pass,passwordHash)) {
           const payload = {
             usuario: usuario.email
            };
