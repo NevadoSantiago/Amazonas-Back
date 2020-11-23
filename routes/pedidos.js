@@ -113,4 +113,49 @@ router.get('/',async (req, res) => {
   }
 
 
+
+
+  router.post('/getPedidosByEmail/', async (req, res) => {
+    const {email} = req.body
+       var pedidos = await getPedidosByEmail(email)
+      res.send(pedidos)
+  })
+
+async function getPedidosByEmail (email) {
+  var pedidoTemplateRespuesta = {
+    nombre: null,
+    apellido: null,
+    direccion: null,
+    email: null,
+    estado: null,
+    key: null,
+    precioTotal: null,
+    productos: null,
+    id: null
+  }
+  await db.ref("pedidos").orderByChild("email").equalTo(email)
+    .once('value', (snapshot) => {
+      var pedidos = snapshot.val()
+      console.log(pedidos)
+      resultado = []
+        for (var i in pedidos){
+          resultado.push(
+            pedidoTemplateRespuesta = {
+              nombre: pedidos[i].nombre,
+              apellido: pedidos[i].apellido,
+              direccion: pedidos[i].direccion,
+              email: pedidos[i].email,
+              estado: pedidos[i].estado,
+              key: pedidos[i].key,
+              precioTotal: pedidos[i].precioTotal,
+              productos: pedidos[i].productos,
+              id: pedidos[i].id
+            }
+          )
+        }
+    })
+    return resultado;
+}
+
+
 module.exports = router;
