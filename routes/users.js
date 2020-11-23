@@ -104,6 +104,9 @@ router.post('/login/token',async (req, res) => {
 
   async function getUsuarioByEmail (email) {
   var usuarioTemplateRespuesta = {
+    nombre:null,
+    apellido:null,
+    direccion:null,
     password: null,
     email: null,
     rol: null,
@@ -116,6 +119,9 @@ router.post('/login/token',async (req, res) => {
       resultado = []
         for (var i in usuarios){
             usuarioTemplateRespuesta = {
+            nombre: usuarios[i].nombre,
+            apellido: usuarios[i].apellido,
+            direccion: usuarios[i].direccion,
             id:i,
             password: usuarios[i].password,
             email: usuarios[i].email,
