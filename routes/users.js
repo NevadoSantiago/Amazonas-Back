@@ -12,89 +12,106 @@ const rutaProtegida = require('../configs/rutaProtegida').getRutaProtegida()
 
 
 
-router.post('/new',async (req, res) => {
-  const { email, password,rol } = req.body
+router.post('/new', async (req, res) => {
+  const { email, password, rol } = req.body
   const newUser = {
     email: email,
     password: password,
-    rol:rol,
+    rol: rol,
   }
   var usuario = await getUsuarioByEmail(email)
-  if(usuario){
-    res.send("Usuario existente",409)
-  }else{
+  if (usuario) {
+    res.send("Usuario existente", 409)
+  } else {
     db.ref("usuarios").push(newUser)
     res.send(newUser)
   }
 
 })
 
-router.post('/login',async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, pass } = req.body
   var usuario = await getUsuarioByEmail(email)
-      if (usuario) {
-        if (usuario.password == pass) {
-          const payload = {
-            usuario: usuario.email
-           };
-           const token = jwt.sign(payload,SECRET,{
-             expiresIn:3600 //EN SEGUNDOS --> (1hora)
-           });
-           usuario.password = null //PARA QUE NO SE ENVIE LA PASSWORD AL FRONT
-           usuario.token = token;
-          res.send(usuario, 201)
-        } else {
-          res.send("Contrasena incorrecta", 402)
-        }
-      } else {
-        res.send("eMail incorrecto", 401)
-      }
-    })
+  if (usuario) {
+    if (usuario.password == pass) {
+      const payload = {
+        usuario: usuario.email
+      };
+      const token = jwt.sign(payload, SECRET, {
+        expiresIn: 3600 //EN SEGUNDOS --> (1hora)
+      });
+      usuario.password = null //PARA QUE NO SE ENVIE LA PASSWORD AL FRONT
+      usuario.token = token;
+      res.send(usuario, 201)
+    } else {
+      res.send("Contrasena incorrecta", 402)
+    }
+  } else {
+    res.send("eMail incorrecto", 401)
+  }
+})
 
-router.post('/login/token',async (req, res) => {
+router.post('/login/token', async (req, res) => {
   const { token } = req.body
   const decode = jwt_decode(token)
   var usuario = await getUsuarioByEmail(decode.usuario)
-      if (usuario) {
-        const payload = {
-          usuario: usuario.email
-         };
-         const nuevoToken = jwt.sign(payload,SECRET,{
-           expiresIn:3600
-         });
-        usuario.password = null
-        usuario.token = nuevoToken
-        res.send(201,usuario)
+  if (usuario) {
+    const payload = {
+      usuario: usuario.email
+    };
+    const nuevoToken = jwt.sign(payload, SECRET, {
+      expiresIn: 3600
+    });
+    usuario.password = null
+    usuario.token = nuevoToken
+    res.send(201, usuario)
+  } else {
+    res.send(null)
+  }
+
+})
+
+router.post('/addProduct/:idProducto/:emailUsuario/:value', async (req, res) => {
+  const { idProducto, emailUsuario, value } = req.params
+  var cantidadProductosInt = parseInt(value, 10)
+  var idProductoInt = parseInt(idProducto, 10)
+  var usuario = await getUsuarioByEmail(emailUsuario)
+  if (usuario) {
+    for (var i = 0; i < cantidadProductosInt; i++) {
+      if (usuario.productos) {
+        usuario.productos.push(idProductoInt)
       } else {
-        res.send(null)
+        usuario.productos = [
+          idProducto
+        ]
       }
-     
-    })
-
-    router.post('/addProduct/:idProducto/:emailUsuario/:value', async(req, res) => {
-      const {idProducto,emailUsuario,value} = req.params
-      var cantidadProductosInt = parseInt(value, 10)
-      var idProductoInt = parseInt(idProducto,10)
-      var usuario = await getUsuarioByEmail(emailUsuario)
-          if (usuario) {
-            for(var i=0;i<cantidadProductosInt; i++){
-            if(usuario.productos){
-              usuario.productos.push(idProductoInt)
-            }else{
-              usuario.productos=[
-                idProducto
-              ]
-            }
-          }
-
-            
-             db.ref("usuarios/"+usuario.id).update(usuario)
-            }
-            res.send(usuario)
-        })
+    }
 
 
-  async function getUsuarioByEmail (email) {
+    db.ref("usuarios/" + usuario.id).update(usuario)
+  }
+  res.send(usuario)
+})
+router.delete('/eliminarCarrito/:idProducto/:emailUsuario', async (req, res) => {
+  const { idProducto, emailUsuario } = req.params
+  var idProductoInt = parseInt(idProducto, 10)
+  var productosCarrito=[]
+  var usuario = await getUsuarioByEmail(emailUsuario)
+  console.log(usuario)
+  if (usuario && usuario.productos) {
+    for(var i=0; i<usuario.productos.length; i++){
+      if(usuario.productos[i] == idProductoInt){
+        usuario.productos.splice(i,1,null)
+        i = usuario.productos.length
+      }
+    }
+    db.ref("usuarios/" + usuario.id).update(usuario)
+  }
+  res.send(usuario)
+})
+
+
+async function getUsuarioByEmail(email) {
   var usuarioTemplateRespuesta = {
     password: null,
     email: null,
@@ -106,21 +123,23 @@ router.post('/login/token',async (req, res) => {
     .once('value', (snapshot) => {
       var usuarios = snapshot.val()
       resultado = []
-        for (var i in usuarios){
-            usuarioTemplateRespuesta = {
-            id:i,
-            password: usuarios[i].password,
-            email: usuarios[i].email,
-            rol: usuarios[i].rol,
-            productos: usuarios[i].productos
+      for (var i in usuarios){
+        if(usuarios[i]){
+        usuarioTemplateRespuesta = {
+        id:i,
+        password: usuarios[i].password,
+        email: usuarios[i].email,
+        rol: usuarios[i].rol,
+        productos: usuarios[i].productos
           }
         }
-          
+      }
+
     })
-    return usuarioTemplateRespuesta;
+  return usuarioTemplateRespuesta;
 }
 
-async function getProductoById (id) {
+async function getProductoById(id) {
   var productoTemplateRespuesta = {
     nombre: null,
     precio: null,
@@ -131,7 +150,8 @@ async function getProductoById (id) {
     .once('value', (snapshot) => {
       var productos = snapshot.val()
       resultado = []
-        for (var i in productos){
+      for (var i in productos) {
+        if(productos[i]){
           productoTemplateRespuesta = {
             nombre: productos[i].nombre,
             precio: productos[i].precio,
@@ -139,9 +159,11 @@ async function getProductoById (id) {
             id: productos[i].id
           }
         }
-          
+
+      }
+
     })
-    return usuarioTemplateRespuesta;
+  return usuarioTemplateRespuesta;
 }
 
 

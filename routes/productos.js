@@ -71,11 +71,16 @@ router.get('/get', (req, res) => {
   
 router.post('/getByIds',async (req,res) =>{
   const {idProductos} = req.body
-  console.log(req)
   let productos = []
 
   for (const id of idProductos) {
-    productos.push( await getProductoById(id))
+    if(id){
+      var prod = await getProductoByIdAndExists(id)
+      console.log(prod)
+      if(prod){
+        productos.push(prod)
+      }
+    }    
   }
     res.send(productos)  
 })
@@ -96,7 +101,7 @@ async function getProductos () {
     id: null
   }
 
-  await db.ref("productos")
+  await db.ref("productos").orderByChild("existencia").equalTo("true")
   .once('value', (snapshot) => {
     var productos = snapshot.val()
     resultado = []
@@ -129,7 +134,7 @@ async function getTotalProductos () {
     id: null
   }
 
-  await db.ref("productos").orderByChild("existencia").equalTo("true")
+  await db.ref("productos")
   .once('value', (snapshot) => {
     var productos = snapshot.val()
     resultado = []
@@ -205,6 +210,29 @@ async function getProductoById (id) {
     })
     return productoTemplateRespuesta;
 }
+async function getProductoByIdAndExists (id) {
+  var productoTemplateRespuesta = null
+  await db.ref("productos").orderByChild("id").equalTo(id)
+    .once('value', (snapshot) => {
+      var productos = snapshot.val()
+        for (var i in productos){
+          if(productos[i].existencia=="true"){
+            productoTemplateRespuesta = {
+              nombre: productos[i].nombre,
+              precio: productos[i].precio,
+              descripcion: productos[i].descripcion,
+              existencia: productos[i].existencia,
+              id: productos[i].id,
+              url:productos[i].url
+            }
+            
+          }
+
+        }
+          
+    })
+    return productoTemplateRespuesta;
+}
 async function getProductosByCategoria (categoria) {
   var productoTemplateRespuesta = {
     nombre: null,
@@ -221,6 +249,7 @@ async function getProductosByCategoria (categoria) {
       console.log(productos)
       resultado = []
         for (var i in productos){
+          if(productos[i].existencia = "true"){
           resultado.push(
           productoTemplateRespuesta = {
             nombre: productos[i].nombre,
@@ -231,7 +260,7 @@ async function getProductosByCategoria (categoria) {
             url:productos[i].url,
             categoria:productos[i].categoria
           }
-          )
+          )}
         }
           
     })
