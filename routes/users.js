@@ -4,25 +4,33 @@ var router = express.Router();
 jwt_decode = require('jwt-decode');
 
 jwt = require('jsonwebtoken');
+
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 const admin = require('firebase-admin')
 const db = admin.database()
 
 const SECRET = require('../configs/rutaProtegida').getSecret();
 const rutaProtegida = require('../configs/rutaProtegida').getRutaProtegida()
+var passwordHash = ''
+router.post('/new',async (req, res) => {
+  const { nombre, apellido, direccion, email, password} = req.body
+  const rol = "usuario"
+  passwordHash = await bcrypt.hash(password,saltRounds)
 
-
-
-router.post('/new', async (req, res) => {
-  const { email, password, rol } = req.body
   const newUser = {
-    email: email,
-    password: password,
-    rol: rol,
+    nombre : nombre,
+    apellido : apellido,
+    direccion: direccion,
+    email:email ,
+    password: passwordHash,
+    rol: rol
   }
   var usuario = await getUsuarioByEmail(email)
-  if (usuario) {
-    res.send("Usuario existente", 409)
-  } else {
+  if(usuario.email != null){
+    res.send("Usuario existente",409)
+  }else{
     db.ref("usuarios").push(newUser)
     res.send(newUser)
   }
@@ -32,24 +40,24 @@ router.post('/new', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, pass } = req.body
   var usuario = await getUsuarioByEmail(email)
-  if (usuario) {
-    if (usuario.password == pass) {
-      const payload = {
-        usuario: usuario.email
-      };
-      const token = jwt.sign(payload, SECRET, {
-        expiresIn: 3600 //EN SEGUNDOS --> (1hora)
-      });
-      usuario.password = null //PARA QUE NO SE ENVIE LA PASSWORD AL FRONT
-      usuario.token = token;
-      res.send(usuario, 201)
-    } else {
-      res.send("Contrasena incorrecta", 402)
-    }
-  } else {
-    res.send("eMail incorrecto", 401)
-  }
-})
+      if (usuario) {
+        if (await bcrypt.compare(pass,passwordHash)) {
+          const payload = {
+            usuario: usuario.email
+           };
+           const token = jwt.sign(payload,SECRET,{
+             expiresIn:3600 //EN SEGUNDOS --> (1hora)
+           });
+           usuario.password = null //PARA QUE NO SE ENVIE LA PASSWORD AL FRONT
+           usuario.token = token;
+          res.send(usuario, 201)
+        } else {
+          res.send("Contrasena incorrecta", 402)
+        }
+      } else {
+        res.send("eMail incorrecto", 401)
+      }
+    })
 
 router.post('/login/token', async (req, res) => {
   const { token } = req.body
@@ -113,6 +121,9 @@ router.delete('/eliminarCarrito/:idProducto/:emailUsuario', async (req, res) => 
 
 async function getUsuarioByEmail(email) {
   var usuarioTemplateRespuesta = {
+    nombre:null,
+    apellido:null,
+    direccion:null,
     password: null,
     email: null,
     rol: null,
@@ -123,17 +134,18 @@ async function getUsuarioByEmail(email) {
     .once('value', (snapshot) => {
       var usuarios = snapshot.val()
       resultado = []
-      for (var i in usuarios){
-        if(usuarios[i]){
-        usuarioTemplateRespuesta = {
-        id:i,
-        password: usuarios[i].password,
-        email: usuarios[i].email,
-        rol: usuarios[i].rol,
-        productos: usuarios[i].productos
+        for (var i in usuarios){
+            usuarioTemplateRespuesta = {
+            nombre: usuarios[i].nombre,
+            apellido: usuarios[i].apellido,
+            direccion: usuarios[i].direccion,
+            id:i,
+            password: usuarios[i].password,
+            email: usuarios[i].email,
+            rol: usuarios[i].rol,
+            productos: usuarios[i].productos
           }
         }
-      }
 
     })
   return usuarioTemplateRespuesta;

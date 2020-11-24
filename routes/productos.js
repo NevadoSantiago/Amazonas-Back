@@ -32,13 +32,13 @@ router.get('/getProductos/:categoria', async (req, res) => {
 })
 
 router.get('/',async (req, res) => {
-  const productos = await getProductos()
+  const productos = await getTotalProductos()
 
   res.send(productos)
 })
 
 router.get('/getTotalProductos',async (req, res) => {
-  const productos = await getTotalProductos()
+  const productos = await getProductos()
 
   res.send(productos)
 })
@@ -91,7 +91,7 @@ router.delete('/deleteByKey', async(req,res)=>{
   res.send('Borrado')
 })
 
-async function getProductos () {
+async function getTotalProductos () {
   var productoTemplateRespuesta = {
     key: null,
     nombre: null,
@@ -124,7 +124,7 @@ async function getProductos () {
 }
 
 
-async function getTotalProductos () {
+async function getProductos() {
   var productoTemplateRespuesta = {
     key: null,
     nombre: null,
